@@ -32,7 +32,13 @@ document.querySelectorAll('.footer-links').forEach(footer=>{footer.innerHTML=foo
 document.querySelectorAll('.footer-intro>p').forEach(tagline=>{tagline.innerHTML='They can’t ask.<br>We don’t wait.'});
 const socialMarkup='<a href="#social-placeholder" aria-label="Instagram placeholder"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle class="social-dot" cx="17.4" cy="6.7" r="1"></circle></svg></a><a href="#social-placeholder" aria-label="TikTok placeholder"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 4v10.1a4.5 4.5 0 1 1-3.2-4.3"></path><path d="M14.5 4c.6 2.5 2.1 3.9 4.4 4.2"></path></svg></a><a href="#social-placeholder" aria-label="Facebook placeholder"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.8 20v-7h2.5l.4-3h-2.9V8.1c0-.9.3-1.5 1.5-1.5h1.6V4a21 21 0 0 0-2.3-.1c-2.3 0-3.9 1.4-3.9 4V10H8.1v3h2.6v7"></path></svg></a>';
 document.querySelectorAll('.footer-bottom').forEach(bottom=>{let socials=bottom.querySelector('.social-links');if(!socials){socials=document.createElement('div');socials.className='social-links';bottom.append(socials)}socials.innerHTML=socialMarkup});
-document.querySelectorAll('.visual-label').forEach(label=>{label.textContent='Photo coming soon'});
+// Remove unfinished visual scaffolding from the public site until real imagery exists.
+document.querySelectorAll('.visual-placeholder,.system-tile').forEach(element=>element.remove());
+document.querySelectorAll('section').forEach(section=>{if(!section.textContent.trim()&&!section.querySelector('form,input,button'))section.remove()});
+document.querySelectorAll('.form-disclosure').forEach(notice=>{notice.textContent='This form is not connected yet.'});
+document.querySelectorAll('[data-preview-form] button[type="submit"]').forEach(button=>{button.textContent=button.textContent.replace(/^Preview\s+/i,'Submit ')});
+document.querySelectorAll('.section-number').forEach(label=>{label.textContent=label.textContent.replace(/\s*\/\s*(Preview|In development)\s*/i,'')});
+document.querySelectorAll('.field-privacy-note').forEach(note=>{if(/future uploads|exif|filenames/i.test(note.textContent))note.remove()});
 
 const menuButton=document.querySelector('[data-menu-toggle]');
 const mobileMenu=document.querySelector('[data-mobile-menu]');
@@ -49,16 +55,16 @@ document.addEventListener('click',event=>{if(welfareMenuButton&&!event.target.cl
 document.querySelectorAll('[data-year]').forEach(el=>el.textContent=new Date().getFullYear());
 const form=document.querySelector('[data-newsletter-form]');
 const status=document.querySelector('[data-form-status]');
-form?.addEventListener('submit',event=>{event.preventDefault();const email=form.elements.email;if(!email.checkValidity()){status.textContent='Please enter a valid email address. This preview form is not connected.';status.style.color='#7c5940';email.focus();return}status.textContent='Thanks. This is a preview only, so your email was not submitted.';status.style.color='#596052';form.reset()});
+form?.addEventListener('submit',event=>{event.preventDefault();const email=form.elements.email;if(!email.checkValidity()){status.textContent='Please enter a valid email address.';status.style.color='#7c5940';email.focus();return}status.textContent='Newsletter signup is coming soon.';status.style.color='#596052';form.reset()});
 // Frontend-only preview forms. Connect to an approved form handler before launch.
-document.querySelectorAll('[data-preview-form]').forEach(previewForm=>previewForm.addEventListener('submit',event=>{event.preventDefault();const previewStatus=previewForm.querySelector('[data-preview-status]');if(!previewForm.checkValidity()){previewForm.reportValidity();if(previewStatus)previewStatus.textContent='Please complete the required fields. This form is still only a preview.';return}const formName=previewForm.dataset.formName||'form';previewForm.classList.add('was-submitted');if(previewStatus)previewStatus.textContent=`Your ${formName} looks complete. This is a preview, so no information was submitted.`}));
+document.querySelectorAll('[data-preview-form]').forEach(previewForm=>previewForm.addEventListener('submit',event=>{event.preventDefault();const previewStatus=previewForm.querySelector('[data-preview-status]');if(!previewForm.checkValidity()){previewForm.reportValidity();if(previewStatus)previewStatus.textContent='Please complete the required fields.';return}previewForm.classList.add('was-submitted');if(previewStatus)previewStatus.textContent='This form is not connected yet.'}));
 // Frontend-only safety screening. A future server endpoint must keep urgent/abuse reports private and route them for human review.
 const safetyScreen=document.querySelector('[data-animal-safety-screen]');
 const urgentGuidance=document.querySelector('[data-urgent-guidance]');
 function updateSafetyGuidance(){if(!safetyScreen||!urgentGuidance)return;const flagged=[...safetyScreen.querySelectorAll('[data-urgent-field]')].some(field=>field.value==='yes');urgentGuidance.hidden=!flagged}
 safetyScreen?.addEventListener('change',updateSafetyGuidance);updateSafetyGuidance();
 // Resource-map controls are structural only. Do not request or store location until a reviewed server-side search flow exists.
-document.querySelectorAll('[data-resource-map-action]').forEach(control=>control.addEventListener('click',()=>{const status=document.querySelector('[data-resource-map-status]');if(status)status.textContent='Resource search and approximate-location features are in development. No location was requested or saved.'}));
+document.querySelectorAll('[data-resource-map-action]').forEach(control=>control.addEventListener('click',()=>{const status=document.querySelector('[data-resource-map-status]');if(status)status.textContent='Resource search is coming soon.'}));
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const reveals=document.querySelectorAll('.reveal');
 if(reduced||!('IntersectionObserver'in window)){reveals.forEach(el=>el.classList.add('is-visible'))}else{const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('is-visible');observer.unobserve(entry.target)}}),{threshold:.12});reveals.forEach(el=>observer.observe(el))}
