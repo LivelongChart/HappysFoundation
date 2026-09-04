@@ -10,27 +10,27 @@ const copyNodes=[];while(copyWalker.nextNode())copyNodes.push(copyWalker.current
 copyNodes.forEach(node=>{if(node.nodeValue.includes('—'))node.nodeValue=node.nodeValue.replace(/\s*—\s*/g,', ')});
 
 // One shared public navigation across the static pages.
-const currentPage=location.pathname.split('/').pop()||'index.html';
+const currentPage=location.pathname.split('/').filter(Boolean).pop()||'';
 const contextualParents={
-  'animals-in-need.html':'animal-welfare.html',
-  'donate.html':'animal-welfare.html',
-  'customers.html':'marketplace.html',
-  'shop.html':'marketplace.html',
-  'apply.html':'marketplace.html',
-  'partner.html':'services.html',
-  'foster-network-how-it-works.html':'animals-in-need.html',
-  'foster.html':'animals-in-need.html',
-  'submit-animal.html':'animals-in-need.html',
-  'animal-resources.html':'animal-welfare.html',
-  'i-found-a-cat.html':'animal-welfare.html',
-  'research.html':'animal-welfare.html',
-  'global-picture.html':'research.html',
-  'houston-specifically.html':'research.html',
-  'what-actually-works.html':'research.html',
-  'where-happys-fits.html':'research.html',
-  'create-account.html':'login.html',
-  'report-concern.html':'contact.html',
-  'how-it-works.html':'/'
+  'animals-in-need':'/animal-welfare',
+  'donate':'/animal-welfare',
+  'customers':'/marketplace',
+  'shop':'/marketplace',
+  'apply':'/marketplace',
+  'partner':'/services',
+  'foster-network-how-it-works':'/animals-in-need',
+  'foster':'/animals-in-need',
+  'submit-animal':'/animals-in-need',
+  'animal-resources':'/animal-welfare',
+  'i-found-a-cat':'/animal-welfare',
+  'research':'/animal-welfare',
+  'global-picture':'/research',
+  'houston-specifically':'/research',
+  'what-actually-works':'/research',
+  'where-happys-fits':'/research',
+  'create-account':'/login',
+  'report-concern':'/contact',
+  'how-it-works':'/'
 };
 const contextualParent=contextualParents[currentPage];
 const pageMain=document.querySelector('main');
@@ -39,23 +39,23 @@ let recordedInternalNavigation=null;
 try{recordedInternalNavigation=JSON.parse(sessionStorage.getItem(internalNavigationKey)||'null')}catch(error){recordedInternalNavigation=null}
 if(contextualParent&&pageMain){const fallbackHref=contextualParent;const contextNav=document.createElement('nav');contextNav.className='context-back-row';contextNav.setAttribute('aria-label','Contextual navigation');contextNav.innerHTML=`<div class="shell"><a href="${fallbackHref}" data-context-back><span aria-hidden="true">←</span> Back</a></div>`;pageMain.prepend(contextNav);const backLink=contextNav.querySelector('[data-context-back]');let hasUsablePreviousPage=false;try{const currentUrl=new URL(location.href);const storedDestination=recordedInternalNavigation?new URL(recordedInternalNavigation.destination):null;const storedSource=recordedInternalNavigation?new URL(recordedInternalNavigation.source):null;const storedNavigationMatches=storedDestination?.href===currentUrl.href&&storedSource?.origin===currentUrl.origin&&storedSource.href!==currentUrl.href;if(storedNavigationMatches)hasUsablePreviousPage=true;if(document.referrer){const referrer=new URL(document.referrer);const currentHost=location.hostname.toLowerCase();const referrerHost=referrer.hostname.toLowerCase();const sameOrigin=referrer.origin===location.origin;const happysHost=referrerHost==='happysfoundation.org'||referrerHost.endsWith('.happysfoundation.org');const currentIsHappys=currentHost==='happysfoundation.org'||currentHost.endsWith('.happysfoundation.org');if((sameOrigin||(happysHost&&currentIsHappys))&&referrer.href!==location.href)hasUsablePreviousPage=true}}catch(error){hasUsablePreviousPage=false}backLink.addEventListener('click',event=>{if(!hasUsablePreviousPage)return;event.preventDefault();window.history.back()})}
 document.addEventListener('click',event=>{const link=event.target.closest('a[href]');if(!link||link.matches('[data-context-back]')||link.target==='_blank'||event.defaultPrevented)return;try{const destination=new URL(link.href,location.href);if(destination.origin!==location.origin||destination.href===location.href)return;sessionStorage.setItem(internalNavigationKey,JSON.stringify({source:location.href,destination:destination.href}))}catch(error){}},{capture:true});
-if(currentPage==='services.html'&&location.hash==='#available')window.addEventListener('load',()=>requestAnimationFrame(()=>document.getElementById('hire')?.scrollIntoView()),{once:true});
-const primaryLinks=[['mission.html','Our Mission'],['animals-in-need.html','Foster Network'],['marketplace.html','Marketplace'],['services.html','Get Involved'],['contact.html','Contact Us'],['about.html','About Us']];
-const utilityLinks=[['login.html','Log In']];
-const actionLinks=[['customers.html','Hire the Team'],['donate.html','Donate']];
+if(currentPage==='services'&&location.hash==='#available')window.addEventListener('load',()=>requestAnimationFrame(()=>document.getElementById('hire')?.scrollIntoView()),{once:true});
+const primaryLinks=[['/mission','Our Mission'],['/animals-in-need','Foster Network'],['/marketplace','Marketplace'],['/services','Get Involved'],['/contact','Contact Us'],['/about','About Us']];
+const utilityLinks=[['/login','Log In']];
+const actionLinks=[['/customers','Hire the Team'],['/donate','Donate']];
 const activeGroups={
-  'animal-welfare.html':['animal-resources.html','i-found-a-cat.html','research.html','global-picture.html','houston-specifically.html','what-actually-works.html','where-happys-fits.html'],
-  'animals-in-need.html':['submit-animal.html','foster.html'],
-  'marketplace.html':['shop.html','customers.html','apply.html','partner.html','login.html','create-account.html','account.html']
+  '/animal-welfare':['animal-resources','i-found-a-cat','research','global-picture','houston-specifically','what-actually-works','where-happys-fits'],
+  '/animals-in-need':['submit-animal','foster'],
+  '/marketplace':['shop','customers','apply','partner','login','create-account','account']
 };
-const isActive=href=>currentPage===href||(activeGroups[href]||[]).includes(currentPage);
-const welfareMenu='<div class="nav-dropdown"><div class="welfare-tab"><a href="animal-welfare.html" class="'+(isActive('animal-welfare.html')?'active':'')+'">Animal Welfare</a><button type="button" aria-expanded="false" aria-label="Open Animal Welfare menu" data-welfare-menu-toggle><span aria-hidden="true">⌄</span></button></div><div class="nav-dropdown-menu" data-welfare-menu><a href="animal-welfare.html">Overview</a><a href="animal-resources.html">Help an Animal</a><a href="research.html">Research</a></div></div>';
-document.querySelectorAll('.header-inner').forEach(header=>{header.innerHTML=`<div class="header-top"><a class="brand" href="/"><span class="brand-mark">H</span><span>Happy's <em>Foundation</em></span></a><div class="header-right-actions"><a class="header-login" href="login.html">Log In</a><a class="header-cta header-hire" href="customers.html">Hire the Team</a><a class="header-cta header-donate" href="donate.html">Donate</a>${welfareMenu}</div><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" data-menu-toggle><span class="sr-only">Open navigation</span><span></span><span></span></button></div><nav class="desktop-nav" aria-label="Primary navigation">${primaryLinks.map(([href,label])=>`<a href="${href}"${isActive(href)?' class="active"':''}>${label}</a>`).join('')}</nav>`});
-const mobilePrimary=[...primaryLinks,...utilityLinks,['customers.html','Hire the Team'],['donate.html','Donate']];
-document.querySelectorAll('.mobile-nav-inner').forEach(nav=>{nav.innerHTML=`<div class="mobile-welfare-group"><a href="animal-welfare.html">Animal Welfare</a><a class="mobile-subnav" href="animal-welfare.html">Overview</a><a class="mobile-subnav" href="animal-resources.html">Help an Animal</a><a class="mobile-subnav" href="research.html">Research</a></div>${mobilePrimary.map(([href,label])=>`<a href="${href}">${label}</a>`).join('')}`});
-document.querySelectorAll('.header-donate').forEach(link=>{link.href='donate.html';link.classList.toggle('active',currentPage==='donate.html')});
+const isActive=href=>currentPage===href.replace(/^\//,'')||(activeGroups[href]||[]).includes(currentPage);
+const welfareMenu='<div class="nav-dropdown"><div class="welfare-tab"><a href="/animal-welfare" class="'+(isActive('/animal-welfare')?'active':'')+'">Animal Welfare</a><button type="button" aria-expanded="false" aria-label="Open Animal Welfare menu" data-welfare-menu-toggle><span aria-hidden="true">⌄</span></button></div><div class="nav-dropdown-menu" data-welfare-menu><a href="/animal-welfare">Overview</a><a href="/animal-resources">Help an Animal</a><a href="/research">Research</a></div></div>';
+document.querySelectorAll('.header-inner').forEach(header=>{header.innerHTML=`<div class="header-top"><a class="brand" href="/"><span class="brand-mark">H</span><span>Happy's <em>Foundation</em></span></a><div class="header-right-actions"><a class="header-login" href="/login">Log In</a><a class="header-cta header-hire" href="/customers">Hire the Team</a><a class="header-cta header-donate" href="/donate">Donate</a>${welfareMenu}</div><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" data-menu-toggle><span class="sr-only">Open navigation</span><span></span><span></span></button></div><nav class="desktop-nav" aria-label="Primary navigation">${primaryLinks.map(([href,label])=>`<a href="${href}"${isActive(href)?' class="active"':''}>${label}</a>`).join('')}</nav>`});
+const mobilePrimary=[...primaryLinks,...utilityLinks,['/customers','Hire the Team'],['/donate','Donate']];
+document.querySelectorAll('.mobile-nav-inner').forEach(nav=>{nav.innerHTML=`<div class="mobile-welfare-group"><a href="/animal-welfare">Animal Welfare</a><a class="mobile-subnav" href="/animal-welfare">Overview</a><a class="mobile-subnav" href="/animal-resources">Help an Animal</a><a class="mobile-subnav" href="/research">Research</a></div>${mobilePrimary.map(([href,label])=>`<a href="${href}">${label}</a>`).join('')}`});
+document.querySelectorAll('.header-donate').forEach(link=>{link.href='/donate';link.classList.toggle('active',currentPage==='donate')});
 document.querySelectorAll('.brand em').forEach(label=>{label.textContent='Foundation'});
-const footerMarkup='<div><h3>Help animals</h3><a href="animals-in-need.html">Animals in need</a><a href="submit-animal.html">Submit an animal</a><a href="foster.html">Foster network</a><a href="animal-resources.html">Houston resources</a></div><div><h3>Take part</h3><a href="customers.html">Hire the team</a><a href="shop.html">Shop Happy\'s</a><a href="apply.html">Apply to the Team</a><a href="partner.html">Partner with us</a></div><div><h3>Account & safety</h3><a href="login.html">Log in</a><a href="report-concern.html">Report a concern</a><a href="contact.html">Contact us</a></div>';
+const footerMarkup='<div><h3>Help animals</h3><a href="/animals-in-need">Animals in need</a><a href="/submit-animal">Submit an animal</a><a href="/foster">Foster network</a><a href="/animal-resources">Houston resources</a></div><div><h3>Take part</h3><a href="/customers">Hire the team</a><a href="/shop">Shop Happy\'s</a><a href="/apply">Apply to the Team</a><a href="/partner">Partner with us</a></div><div><h3>Account & safety</h3><a href="/login">Log in</a><a href="/report-concern">Report a concern</a><a href="/contact">Contact us</a></div>';
 document.querySelectorAll('.footer-links').forEach(footer=>{footer.innerHTML=footerMarkup});
 document.querySelectorAll('.footer-intro').forEach(intro=>{let tagline=intro.querySelector('p');if(!tagline){tagline=document.createElement('p');intro.append(tagline)}tagline.innerHTML='They can’t ask.<br>We don’t wait.'});
 const socialMarkup='<span aria-label="Instagram link coming soon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle class="social-dot" cx="17.4" cy="6.7" r="1"></circle></svg></span><span aria-label="TikTok link coming soon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 4v10.1a4.5 4.5 0 1 1-3.2-4.3"></path><path d="M14.5 4c.6 2.5 2.1 3.9 4.4 4.2"></path></svg></span><span aria-label="Facebook link coming soon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.8 20v-7h2.5l.4-3h-2.9V8.1c0-.9.3-1.5 1.5-1.5h1.6V4a21 21 0 0 0-2.3-.1c-2.3 0-3.9 1.4-3.9 4V10H8.1v3h2.6v7"></path></svg></span>';
