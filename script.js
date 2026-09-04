@@ -11,12 +11,40 @@ copyNodes.forEach(node=>{if(node.nodeValue.includes('—'))node.nodeValue=node.n
 
 // One shared public navigation across the static pages.
 const currentPage=location.pathname.split('/').pop()||'index.html';
+const contextualParents={
+  'animals-in-need.html':'animal-welfare.html',
+  'donate.html':'animal-welfare.html',
+  'customers.html':'marketplace.html',
+  'shop.html':'marketplace.html',
+  'apply.html':'marketplace.html',
+  'partner.html':'services.html',
+  'foster-network-how-it-works.html':'animals-in-need.html',
+  'foster.html':'animals-in-need.html',
+  'submit-animal.html':'animals-in-need.html',
+  'animal-resources.html':'animal-welfare.html',
+  'i-found-a-cat.html':'animal-welfare.html',
+  'research.html':'animal-welfare.html',
+  'global-picture.html':'research.html',
+  'houston-specifically.html':'research.html',
+  'what-actually-works.html':'research.html',
+  'where-happys-fits.html':'research.html',
+  'create-account.html':'login.html',
+  'report-concern.html':'contact.html',
+  'how-it-works.html':'index.html'
+};
+const contextualParent=contextualParents[currentPage];
+const pageMain=document.querySelector('main');
+const internalNavigationKey='happys-previous-navigation';
+let recordedInternalNavigation=null;
+try{recordedInternalNavigation=JSON.parse(sessionStorage.getItem(internalNavigationKey)||'null')}catch(error){recordedInternalNavigation=null}
+if(contextualParent&&pageMain){const fallbackHref=contextualParent;const contextNav=document.createElement('nav');contextNav.className='context-back-row';contextNav.setAttribute('aria-label','Contextual navigation');contextNav.innerHTML=`<div class="shell"><a href="${fallbackHref}" data-context-back><span aria-hidden="true">←</span> Back</a></div>`;pageMain.prepend(contextNav);const backLink=contextNav.querySelector('[data-context-back]');let hasUsablePreviousPage=false;try{const currentUrl=new URL(location.href);const storedDestination=recordedInternalNavigation?new URL(recordedInternalNavigation.destination):null;const storedSource=recordedInternalNavigation?new URL(recordedInternalNavigation.source):null;const storedNavigationMatches=storedDestination?.href===currentUrl.href&&storedSource?.origin===currentUrl.origin&&storedSource.href!==currentUrl.href;if(storedNavigationMatches)hasUsablePreviousPage=true;if(document.referrer){const referrer=new URL(document.referrer);const currentHost=location.hostname.toLowerCase();const referrerHost=referrer.hostname.toLowerCase();const sameOrigin=referrer.origin===location.origin;const happysHost=referrerHost==='happysfoundation.org'||referrerHost.endsWith('.happysfoundation.org');const currentIsHappys=currentHost==='happysfoundation.org'||currentHost.endsWith('.happysfoundation.org');if((sameOrigin||(happysHost&&currentIsHappys))&&referrer.href!==location.href)hasUsablePreviousPage=true}}catch(error){hasUsablePreviousPage=false}backLink.addEventListener('click',event=>{if(!hasUsablePreviousPage)return;event.preventDefault();window.history.back()})}
+document.addEventListener('click',event=>{const link=event.target.closest('a[href]');if(!link||link.matches('[data-context-back]')||link.target==='_blank'||event.defaultPrevented)return;try{const destination=new URL(link.href,location.href);if(destination.origin!==location.origin||destination.href===location.href)return;sessionStorage.setItem(internalNavigationKey,JSON.stringify({source:location.href,destination:destination.href}))}catch(error){}},{capture:true});
 if(currentPage==='services.html'&&location.hash==='#available')window.addEventListener('load',()=>requestAnimationFrame(()=>document.getElementById('hire')?.scrollIntoView()),{once:true});
 const primaryLinks=[['mission.html','Our Mission'],['animals-in-need.html','Foster Network'],['marketplace.html','Marketplace'],['services.html','Get Involved'],['contact.html','Contact Us'],['about.html','About Us']];
 const utilityLinks=[['login.html','Log In']];
 const actionLinks=[['customers.html','Hire the Team'],['donate.html','Donate']];
 const activeGroups={
-  'animal-welfare.html':['animal-resources.html','research.html','global-picture.html','houston-specifically.html','what-actually-works.html','where-happys-fits.html'],
+  'animal-welfare.html':['animal-resources.html','i-found-a-cat.html','research.html','global-picture.html','houston-specifically.html','what-actually-works.html','where-happys-fits.html'],
   'animals-in-need.html':['submit-animal.html','foster.html'],
   'marketplace.html':['shop.html','customers.html','apply.html','partner.html','login.html','create-account.html','account.html']
 };
@@ -34,7 +62,7 @@ const socialMarkup='<span aria-label="Instagram link coming soon"><svg viewBox="
 document.querySelectorAll('.footer-bottom').forEach(bottom=>{let socials=bottom.querySelector('.social-links');if(!socials){socials=document.createElement('div');socials.className='social-links';bottom.append(socials)}socials.innerHTML=socialMarkup});
 // Remove unfinished visual scaffolding from the public site until real imagery exists.
 document.querySelectorAll('.visual-placeholder,.system-tile').forEach(element=>element.remove());
-document.querySelectorAll('section').forEach(section=>{if(!section.textContent.trim()&&!section.querySelector('form,input,button'))section.remove()});
+document.querySelectorAll('section').forEach(section=>{if(!section.textContent.trim()&&!section.querySelector('form,input,button,img,picture,video'))section.remove()});
 document.querySelectorAll('.form-disclosure').forEach(notice=>{notice.textContent='This form is not connected yet.'});
 document.querySelectorAll('[data-preview-form] button[type="submit"]').forEach(button=>{button.textContent=button.textContent.replace(/^Preview\s+/i,'Submit ')});
 document.querySelectorAll('.section-number').forEach(label=>{label.textContent=label.textContent.replace(/\s*\/\s*(Preview|In development)\s*/i,'')});
@@ -60,6 +88,9 @@ form?.addEventListener('submit',event=>{event.preventDefault();const email=form.
 document.querySelectorAll('[data-preview-form]').forEach(previewForm=>previewForm.addEventListener('submit',event=>{event.preventDefault();const previewStatus=previewForm.querySelector('[data-preview-status]');const requiredCheckboxGroup=previewForm.querySelector('[data-required-checkbox-group]');if(requiredCheckboxGroup&&!requiredCheckboxGroup.querySelector('input[type="checkbox"]:checked')){if(previewStatus)previewStatus.textContent='Please select at least one role.';requiredCheckboxGroup.querySelector('input[type="checkbox"]')?.focus();return}if(!previewForm.checkValidity()){previewForm.reportValidity();if(previewStatus)previewStatus.textContent='Please complete the required fields.';return}previewForm.classList.add('was-submitted');if(previewStatus)previewStatus.textContent='This form is not connected yet.'}));
 const contactForm=document.querySelector('[data-form-name="contact inquiry"]');
 if(contactForm){const contactParams=new URLSearchParams(location.search);const requestedReason=contactParams.get('reason');const requestedMessage=contactParams.get('message');const reasonField=contactForm.elements.reason;const messageField=contactForm.elements.message;if(requestedReason&&[...reasonField.options].some(option=>option.value===requestedReason))reasonField.value=requestedReason;if(requestedMessage&&!messageField.value)messageField.value=requestedMessage}
+document.querySelectorAll('[data-foster-carousel]').forEach(carousel=>{const viewport=carousel.querySelector('[data-carousel-viewport]');const track=carousel.querySelector('[data-carousel-track]');const cards=[...track.children];const previous=carousel.querySelector('[data-carousel-previous]');const next=carousel.querySelector('[data-carousel-next]');const carouselStatus=carousel.querySelector('[data-carousel-status]');let index=0;const visibleCount=()=>matchMedia('(max-width:620px)').matches?1:2;const update=()=>{const visible=visibleCount();const maximum=Math.max(0,cards.length-visible);index=Math.min(index,maximum);const cardWidth=cards[0]?.getBoundingClientRect().width||0;const gap=parseFloat(getComputedStyle(track).gap)||0;track.style.transform=`translateX(-${index*(cardWidth+gap)}px)`;previous.disabled=index===0;next.disabled=index===maximum;if(carouselStatus)carouselStatus.textContent=`Showing sample ${index+1} through ${Math.min(index+visible,cards.length)} of ${cards.length}`};previous.addEventListener('click',()=>{index=Math.max(0,index-1);update()});next.addEventListener('click',()=>{index=Math.min(cards.length-visibleCount(),index+1);update()});viewport.addEventListener('keydown',event=>{if(event.key==='ArrowLeft'){event.preventDefault();previous.click()}if(event.key==='ArrowRight'){event.preventDefault();next.click()}});window.addEventListener('resize',update);update()});
+document.querySelectorAll('[data-needs-explorer]').forEach(explorer=>{const items=[...explorer.querySelectorAll('article')];const activate=item=>{items.forEach(candidate=>{const active=candidate===item;candidate.classList.toggle('is-active',active);candidate.querySelector('button').setAttribute('aria-expanded',String(active));candidate.querySelector('p').hidden=!active})};items.forEach(item=>{const button=item.querySelector('button');button.addEventListener('click',()=>activate(item));item.addEventListener('pointerenter',()=>{if(matchMedia('(min-width:901px)').matches)activate(item)})})});
+document.querySelectorAll('[data-foster-journey]').forEach(journey=>{const items=[...journey.querySelectorAll('li')];const detail=journey.querySelector('.foster-journey-detail');const detailLabel=detail.querySelector(':scope>span');const detailCopy=detail.querySelector(':scope>p');const branches=journey.querySelector('[data-journey-branches]');const previous=journey.querySelector('[data-journey-previous]');const next=journey.querySelector('[data-journey-next]');let index=0;const activate=nextIndex=>{index=Math.max(0,Math.min(items.length-1,nextIndex));items.forEach((item,itemIndex)=>{const active=itemIndex===index;item.classList.toggle('is-active',active);const button=item.querySelector('button');if(active)button.setAttribute('aria-current','step');else button.removeAttribute('aria-current')});const activeItem=items[index];detailLabel.textContent=`${activeItem.querySelector('span').textContent} · ${activeItem.querySelector('b').textContent}`;detailCopy.textContent=activeItem.querySelector('p').textContent;branches.hidden=index!==2;previous.disabled=index===0;next.disabled=index===items.length-1};items.forEach((item,itemIndex)=>item.querySelector('button').addEventListener('click',()=>activate(itemIndex)));previous.addEventListener('click',()=>activate(index-1));next.addEventListener('click',()=>activate(index+1));activate(0)});
 // Frontend-only safety screening. A future server endpoint must keep urgent/abuse reports private and route them for human review.
 const safetyScreen=document.querySelector('[data-animal-safety-screen]');
 const urgentGuidance=document.querySelector('[data-urgent-guidance]');
