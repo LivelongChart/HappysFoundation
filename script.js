@@ -30,7 +30,7 @@ const contextualParents={
   'where-happys-fits.html':'research.html',
   'create-account.html':'login.html',
   'report-concern.html':'contact.html',
-  'how-it-works.html':'index.html'
+  'how-it-works.html':'/'
 };
 const contextualParent=contextualParents[currentPage];
 const pageMain=document.querySelector('main');
@@ -50,7 +50,7 @@ const activeGroups={
 };
 const isActive=href=>currentPage===href||(activeGroups[href]||[]).includes(currentPage);
 const welfareMenu='<div class="nav-dropdown"><div class="welfare-tab"><a href="animal-welfare.html" class="'+(isActive('animal-welfare.html')?'active':'')+'">Animal Welfare</a><button type="button" aria-expanded="false" aria-label="Open Animal Welfare menu" data-welfare-menu-toggle><span aria-hidden="true">⌄</span></button></div><div class="nav-dropdown-menu" data-welfare-menu><a href="animal-welfare.html">Overview</a><a href="animal-resources.html">Help an Animal</a><a href="research.html">Research</a></div></div>';
-document.querySelectorAll('.header-inner').forEach(header=>{header.innerHTML=`<div class="header-top"><a class="brand" href="index.html"><span class="brand-mark">H</span><span>Happy's <em>Foundation</em></span></a><div class="header-right-actions"><a class="header-login" href="login.html">Log In</a><a class="header-cta header-hire" href="customers.html">Hire the Team</a><a class="header-cta header-donate" href="donate.html">Donate</a>${welfareMenu}</div><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" data-menu-toggle><span class="sr-only">Open navigation</span><span></span><span></span></button></div><nav class="desktop-nav" aria-label="Primary navigation">${primaryLinks.map(([href,label])=>`<a href="${href}"${isActive(href)?' class="active"':''}>${label}</a>`).join('')}</nav>`});
+document.querySelectorAll('.header-inner').forEach(header=>{header.innerHTML=`<div class="header-top"><a class="brand" href="/"><span class="brand-mark">H</span><span>Happy's <em>Foundation</em></span></a><div class="header-right-actions"><a class="header-login" href="login.html">Log In</a><a class="header-cta header-hire" href="customers.html">Hire the Team</a><a class="header-cta header-donate" href="donate.html">Donate</a>${welfareMenu}</div><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" data-menu-toggle><span class="sr-only">Open navigation</span><span></span><span></span></button></div><nav class="desktop-nav" aria-label="Primary navigation">${primaryLinks.map(([href,label])=>`<a href="${href}"${isActive(href)?' class="active"':''}>${label}</a>`).join('')}</nav>`});
 const mobilePrimary=[...primaryLinks,...utilityLinks,['customers.html','Hire the Team'],['donate.html','Donate']];
 document.querySelectorAll('.mobile-nav-inner').forEach(nav=>{nav.innerHTML=`<div class="mobile-welfare-group"><a href="animal-welfare.html">Animal Welfare</a><a class="mobile-subnav" href="animal-welfare.html">Overview</a><a class="mobile-subnav" href="animal-resources.html">Help an Animal</a><a class="mobile-subnav" href="research.html">Research</a></div>${mobilePrimary.map(([href,label])=>`<a href="${href}">${label}</a>`).join('')}`});
 document.querySelectorAll('.header-donate').forEach(link=>{link.href='donate.html';link.classList.toggle('active',currentPage==='donate.html')});
