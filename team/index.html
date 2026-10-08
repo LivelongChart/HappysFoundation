@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="referrer" content="no-referrer">
+  <title>Happy’s Team Portal</title>
+  <link rel="stylesheet" href="/team/team.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js" defer></script>
+  <script src="/team/team.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to workspace</a>
+  <div id="entry" class="entry-shell">
+    <section id="loading" class="entry" role="status" aria-busy="true"><span class="brand-mark" aria-hidden="true">H</span><h1>Happy’s Team Portal</h1><p>Checking your session…</p></section>
+    <section id="login" class="entry" hidden aria-labelledby="login-title"><span class="eyebrow">Happy’s Foundation / Team</span><h1 id="login-title">Happy’s Team Portal</h1><p class="intro">Private workspace for the Happy’s Foundation team.</p><button id="sign-in" class="primary" type="button">Sign in with Google</button></section>
+    <p id="login-notice" class="notice" role="alert" hidden></p><button id="retry" type="button" hidden>Try again</button>
+    <noscript><p class="notice">Enable JavaScript to use the team portal.</p></noscript>
+  </div>
+  <div id="workspace" hidden>
+    <header class="mobile-header"><span>Happy’s / Team</span><button id="menu-open" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">☰ Menu</button></header>
+    <div id="drawer-backdrop" hidden></div>
+    <aside id="sidebar" aria-label="Workspace sidebar">
+      <div class="sidebar-brand"><span class="eyebrow">Happy’s Foundation</span><h1>Team Portal</h1><button id="menu-close" class="mobile-only" type="button">Close menu</button></div>
+      <nav id="navigation" aria-label="Workspace">
+        <a href="#dashboard" data-view="dashboard">Dashboard</a>
+        <a href="#my" data-view="my">My Assignments</a>
+        <a href="#team" data-view="team">Team Assignments</a>
+        <a href="#turn-in" data-view="turn-in">Turn In Work</a>
+        <a href="#documents" data-view="documents">Documents</a>
+        <a href="#admin" data-view="admin" id="admin-link" hidden>Admin</a>
+      </nav>
+      <div class="sidebar-member"><strong id="member-name"></strong><p id="member-role" class="muted"></p><button id="sign-out" type="button">Sign Out</button></div>
+    </aside>
+    <main id="main" tabindex="-1">
+      <header class="page-header"><div><p class="eyebrow">Private team workspace</p><h2 id="page-title" tabindex="-1">Dashboard</h2></div><button id="refresh" type="button">Refresh</button></header>
+      <p id="notice" class="notice" role="alert" hidden></p><p id="activity" class="activity" role="status" aria-live="polite"></p>
+      <section id="view-dashboard" class="view" aria-labelledby="welcome">
+        <div class="welcome"><h3 id="welcome"></h3><p id="welcome-role" class="muted"></p></div>
+        <div id="stats" class="stats"></div>
+        <div class="section-heading"><h3>Due Soon</h3><span class="muted">Your next 7 days</span></div><div id="due-tasks" class="task-list"></div>
+        <div class="section-heading spaced"><h3>Recent Activity</h3><span class="muted">Submitted &amp; completed</span></div><div id="recent-tasks" class="task-list"></div>
+      </section>
+      <section id="view-my" class="view" hidden aria-label="My Assignments"><div id="my-tasks" class="task-list"></div><details class="completed"><summary id="completed-summary">Completed assignments</summary><div id="completed-tasks" class="task-list"></div></details></section>
+      <section id="view-team" class="view" hidden aria-label="Team Assignments">
+        <form id="filters" class="filters" aria-label="Filter team assignments">
+          <label>Assignee<select id="filter-assignee"><option value="">All members</option></select></label>
+          <label>Status<select id="filter-status"><option value="">All active statuses</option><option value="not_started">Not Started</option><option value="in_progress">In Progress</option><option value="submitted">Submitted</option></select></label>
+          <label>Priority<select id="filter-priority"><option value="">All priorities</option><option value="low">Low</option><option value="normal">Normal</option><option value="high">High</option></select></label>
+          <label>Category<select id="filter-category"><option value="">All categories</option></select></label>
+          <button id="clear-filters" type="button">Clear</button>
+        </form><p id="filter-count" class="muted" role="status"></p><div id="team-tasks" class="task-list"></div>
+      </section>
+      <section id="view-turn-in" class="view" hidden aria-label="Turn In Work">
+        <p class="intro">Share the work behind your assignment.</p><p class="muted">Use a Google Drive link for documents you’re still editing. Upload a final file when it’s ready for review.</p>
+        <p id="submission-unavailable" class="notice" hidden></p>
+        <form id="submission-form" class="panel form-panel">
+          <p id="submission-error" class="notice" role="alert" hidden></p>
+          <fieldset id="submission-fields">
+            <label>Assignment<select name="task_id" required></select></label>
+            <fieldset class="method"><legend>How would you like to turn it in?</legend><label><input type="radio" name="submission_type" value="drive_link" checked> Google Drive link</label><label><input type="radio" name="submission_type" value="file"> Final file</label></fieldset>
+            <div id="drive-fields"><label>Google Drive link<input name="drive_url" type="url" placeholder="https://docs.google.com/…" aria-describedby="drive-help"></label><p id="drive-help" class="field-help">Use drive.google.com or docs.google.com. Share the document with the intended reviewers in Google Drive; the portal does not change sharing permissions.</p></div>
+            <div id="file-fields" hidden><label>Final file<input name="file" type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.csv,.txt,.png,.jpg,.jpeg,.webp,.zip" aria-describedby="file-help"></label><p id="file-help" class="field-help">PDF, Office document, CSV, text, PNG/JPEG/WebP image, or ZIP. Up to 20 MB. Files are stored privately.</p></div>
+            <label>Notes / comments <span class="muted">(optional)</span><textarea name="notes" rows="4" maxlength="10000"></textarea></label>
+          </fieldset><button id="submit-work" class="primary" type="submit">Submit Work</button>
+        </form>
+      </section>
+      <section id="view-documents" class="view" hidden aria-label="Documents"><p class="muted">Submitted work visible to your account. Earlier versions remain available when work is returned for changes.</p><div id="documents-list" class="task-list"></div></section>
+      <section id="view-admin" class="view" hidden aria-label="Admin">
+        <nav class="admin-nav" aria-label="Admin sections">
+          <button id="admin-assignments-tab" type="button" aria-pressed="true" aria-controls="admin-assignments-panel">Assignments &amp; review</button>
+          <button id="admin-members-tab" type="button" aria-pressed="false" aria-controls="admin-members-panel">Team Members</button>
+        </nav>
+        <div id="admin-assignments-panel">
+        <div class="section-heading"><div><h3>Assignments &amp; review</h3><p class="muted">Manage the work and help the team move forward.</p></div><button id="add" class="primary" type="button">+ Add Assignment</button></div>
+        <div class="section-heading"><h3>Awaiting review</h3><button type="button" id="review-documents">Review submissions</button></div><div id="review-tasks" class="task-list"></div>
+        <div class="section-heading spaced"><h3>All assignments</h3></div><div id="admin-tasks" class="task-list"></div>
+        </div>
+        <section id="admin-members-panel" hidden aria-labelledby="members-heading">
+          <div id="members-overview">
+            <div class="section-heading"><div><h3 id="members-heading" tabindex="-1">Team Members</h3><p class="muted">Active members, their outstanding work, and recent completions.</p></div></div>
+            <p class="member-context">Members are listed alphabetically. Counts reflect assignments visible to your account. Overdue counts Not Started and In Progress work past its due date.</p>
+            <div id="member-list" class="task-list"></div>
+          </div>
+          <section id="member-detail" hidden aria-labelledby="member-detail-name">
+            <button id="back-to-members" type="button">← All Team Members</button>
+            <div class="member-detail-heading"><h3 id="member-detail-name" tabindex="-1"></h3><p id="member-detail-role" class="muted"></p></div>
+            <p class="member-context">Completion is attributed to the current task assignee.</p>
+            <div class="section-heading"><h3>Active Assignments</h3><span id="member-active-count" class="muted"></span></div>
+            <div id="member-active-tasks" class="task-list"></div>
+            <div class="section-heading spaced"><h3>Submitted / Awaiting Review</h3><span id="member-submitted-count" class="muted"></span></div>
+            <div id="member-submitted-tasks" class="task-list"></div>
+            <div class="section-heading spaced"><h3>Completed Assignments</h3><span id="member-completed-count" class="muted"></span></div>
+            <div id="member-completed-tasks" class="task-list"></div>
+          </section>
+        </section>
+      </section>
+    </main>
+  </div>
+  <dialog id="assignment-dialog" aria-labelledby="form-heading">
+    <form id="assignment-form"><div class="section-heading"><h2 id="form-heading">Add Assignment</h2><button id="close-dialog" type="button">Close</button></div><p id="form-error" class="notice" role="alert" hidden></p>
+      <fieldset id="form-fields">
+        <label>Title<input name="title" required maxlength="300" autocomplete="off"></label><label>Description<textarea name="description" rows="3" maxlength="10000"></textarea></label>
+        <div class="form-grid"><label>Assignee<select name="assignee_id" required></select></label><label>Due date<input name="due_date" type="date"></label>
+          <label>Status<select name="status"><option value="not_started">Not Started</option><option value="in_progress">In Progress</option><option value="submitted">Submitted</option><option value="done">Done</option></select></label>
+          <label>Priority<select name="priority"><option value="low">Low</option><option value="normal" selected>Normal</option><option value="high">High</option></select></label></div>
+        <label>Category<input name="category" maxlength="120" autocomplete="off"></label><label class="check-label"><input name="requires_submission" type="checkbox"> Requires submission and admin review</label>
+      </fieldset><div class="form-actions"><button id="delete" class="danger" type="button" hidden>Delete assignment</button><button id="save" class="primary" type="submit">Save assignment</button></div>
+    </form>
+  </dialog>
+</body>
+</html>
