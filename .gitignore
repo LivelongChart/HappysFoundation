@@ -1,0 +1,17 @@
+# Local/private material, not website assets.
+.DS_Store
+/Recovery/
+/Documents/
+/GPT/
+/Codex/
+/HappysFoundation-main/
+/htmls/
+.env
+.env.*
+!.env.example
+!.env.*.example
+node_modules/
+.vercel/
+/.codex/
+/.agents/
+# Portal tests, SQL, documentation, Images/ and assets/ remain eligible for Git.

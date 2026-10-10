@@ -19,22 +19,25 @@ const AUTH_REDIRECT_URL = new URL('/team/', window.location.origin).href;
     ppt: 'application/vnd.ms-powerpoint', pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
     csv: 'text/csv', txt: 'text/plain', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp', zip: 'application/zip'
   };
-  const labels = { not_started: 'Not Started', in_progress: 'In Progress', submitted: 'Submitted', done: 'Done' };
+  const labels = { not_started: 'Not Started', in_progress: 'In Progress', submitted: 'Submitted', done: 'Completed' };
   const views = { dashboard: 'Dashboard', my: 'My Assignments', team: 'Team Assignments', 'turn-in': 'Turn In Work', documents: 'Documents', admin: 'Admin' };
   const denied = 'This Google account is not authorized to access the Happy’s Team Portal.';
-  const migrationNotice = 'The workspace upgrade needs the manual Supabase migration before submissions and member status updates are available. Existing assignments remain available.';
+  const migrationNotice = 'Some features are unavailable. You can still view assignments. Ask an admin for help.';
   let client, member = null, members = [], tasks = [], submissions = [], editing = null;
   let generation = 0, busy = false, signingOut = false, loginMessage = '', sessionUserId = null;
   let v2 = false, documentsError = '', view = 'dashboard';
-  let adminSection = 'assignments', selectedMemberId = null;
+  let adminSection = 'assignments', selectedMemberId = null, documentTaskId = '';
+  const friendlyError = "We couldn't load this right now. Try again or ask an admin for help.";
   const mobile = window.matchMedia('(max-width: 760px)');
 
   function message(text = '', id = 'notice') { $(id).textContent = text; $(id).hidden = !text; }
   function errorText(error) {
-    if (error?.code === '42501' || /row.level|permission denied/i.test(error?.message || '')) return 'Your account does not have permission for this action. Ask an administrator to review the existing access policies.';
+    if (error?.code === '42501' || /row.level|permission denied/i.test(error?.message || '')) return 'Your account does not have permission for this action. Ask an admin for access.';
     if (['42703', '42P01', 'PGRST204', 'PGRST205'].includes(error?.code)) return migrationNotice;
-    return error?.message || 'Unable to reach the workspace. Check your connection and try again.';
+    if (error?.portalMessage) return error.message;
+    return member?.is_admin && error?.message ? error.message : friendlyError;
   }
+  function portalError(message, code) { return Object.assign(new Error(message), {portalMessage: true, code}); }
   function node(tag, text = '', className = '') {
     const el = document.createElement(tag); el.textContent = text; if (className) el.className = className; return el;
   }
@@ -44,10 +47,10 @@ const AUTH_REDIRECT_URL = new URL('/team/', window.location.origin).href;
   }
   function clearPrivateData() {
     member = null; members = []; tasks = []; submissions = []; editing = null; v2 = false; documentsError = '';
-    selectedMemberId = null; adminSection = 'assignments';
+    selectedMemberId = null; adminSection = 'assignments'; documentTaskId = '';
     $('workspace').hidden = true; $('admin-link').hidden = true; $('view-admin').hidden = true;
-    for (const id of ['stats','due-tasks','recent-tasks','my-tasks','completed-tasks','team-tasks','documents-list','review-tasks','admin-tasks','member-list','member-active-tasks','member-submitted-tasks','member-completed-tasks']) $(id).replaceChildren();
-    for (const id of ['member-name','member-role','welcome','welcome-role','activity','member-detail-name','member-detail-role','member-active-count','member-submitted-count','member-completed-count']) $(id).textContent = '';
+    for (const id of ['stats','due-tasks','awaiting-tasks','dashboard-completed-tasks','recent-tasks','my-tasks','completed-tasks','team-tasks','documents-list','review-tasks','admin-tasks','member-list','member-active-tasks','member-submitted-tasks','member-completed-tasks']) $(id).replaceChildren();
+    for (const id of ['member-name','member-role','welcome','welcome-role','activity','member-detail-name','member-detail-role','document-filter-label','dashboard-completed-summary','member-active-count','member-submitted-count','member-completed-count']) $(id).textContent = '';
     if (dialog.open) dialog.close();
     assignmentForm.reset(); submissionForm.reset();
     assignmentForm.elements.assignee_id.replaceChildren(); submissionForm.elements.task_id.replaceChildren();
@@ -104,13 +107,13 @@ const AUTH_REDIRECT_URL = new URL('/team/', window.location.origin).href;
       ]);
       if (ticket !== generation) return;
       member = authorized; members = people; tasks = assignments; submissions = documents.data || [];
-      v2 = upgraded && !documents.error; documentsError = documents.error ? errorText(documents.error) : '';
+      v2 = upgraded; documentsError = documents.error ? friendlyError : '';
       $('entry').hidden = true; $('workspace').hidden = false;
       $('member-name').textContent = member.name || member.email;
       $('member-role').textContent = $('welcome-role').textContent = member.role || 'Team member';
       $('welcome').textContent = 'Welcome, ' + (member.name || member.email.split('@')[0]).trim().split(/\s+/)[0];
       $('admin-link').hidden = member.is_admin !== true;
-      message(v2 ? '' : (documentsError || migrationNotice));
+      message(v2 ? '' : migrationNotice);
       render(); selectView(location.hash.slice(1), false);
     } catch (error) {
       if (ticket !== generation) return;
@@ -141,10 +144,10 @@ const AUTH_REDIRECT_URL = new URL('/team/', window.location.origin).href;
     if (member.is_admin) { const edit = button('Edit',()=>openForm(task)); edit.setAttribute('aria-label','Edit assignment: '+task.title); actions.append(edit); }
     if (task.assignee_id === member.id && v2) {
       if (task.status === 'not_started') actions.append(button('Start task',()=>changeStatus(task,'in_progress')));
-      if (task.status === 'in_progress' && !task.requires_submission) actions.append(button('Mark Done',()=>changeStatus(task,'done')));
+      if (task.status === 'in_progress' && !task.requires_submission) actions.append(button('Mark Completed',()=>changeStatus(task,'done')));
       if (['not_started','in_progress'].includes(task.status)) actions.append(button('Turn In Work',()=>{selectView('turn-in'); submissionForm.elements.task_id.value=task.id;}));
     }
-    if (task.status === 'submitted') actions.append(button('View submissions',()=>selectView('documents')));
+    if (task.status === 'submitted') actions.append(button('View submissions',()=>{documentTaskId=task.id;renderDocuments();selectView('documents');}));
     bottom.append(actions); card.append(bottom); return card;
   }
   function taskList(id, items, empty = 'No assignments right now.', showAssignee = true) {
@@ -158,10 +161,16 @@ const AUTH_REDIRECT_URL = new URL('/team/', window.location.origin).href;
   function render() {
     const mine = tasks.filter(t=>t.assignee_id===member.id), active = mine.filter(t=>t.status!=='done');
     $('stats').replaceChildren();
-    for (const [label,count] of [['My Open Assignments',active.length],['Due Soon',mine.filter(dueSoon).length],['Overdue',mine.filter(overdue).length],['Submitted',mine.filter(t=>t.status==='submitted').length]]) {
+    for (const [label,count] of [['Active assignments',mine.filter(t=>['not_started','in_progress'].includes(t.status)).length],['Due Soon',mine.filter(dueSoon).length],['Overdue',mine.filter(overdue).length],['Submitted',mine.filter(t=>t.status==='submitted').length]]) {
       const stat=node('div','','stat'); stat.append(node('strong',String(count)),node('span',label)); $('stats').append(stat);
     }
-    taskList('due-tasks',sorted(mine.filter(dueSoon)),'Nothing due in the next 7 days.',false);
+    const actionable = mine.filter(t=>['not_started','in_progress'].includes(t.status));
+    const needsAttention = sorted(actionable.filter(t=>overdue(t)||dueSoon(t)||!t.due_date));
+    taskList('due-tasks',needsAttention,actionable.length?'Nothing needs attention this week. See My Assignments for later work.':'No assignments need your attention.',false);
+    taskList('awaiting-tasks',sorted(mine.filter(t=>t.status==='submitted')),'Nothing awaiting review.',false);
+    const completed = completedNewest(mine.filter(t=>t.status==='done'));
+    $('dashboard-completed-summary').textContent=`Completed (${completed.length})`;
+    taskList('dashboard-completed-tasks',completed,'No completed assignments yet.',false);
     const recent=tasks.filter(t=>['submitted','done'].includes(t.status)).sort((a,b)=>(b.completed_at||b.submitted_at||b.updated_at||'').localeCompare(a.completed_at||a.submitted_at||a.updated_at||'')).slice(0,5);
     taskList('recent-tasks',recent,'No submitted or completed assignments yet.');
     taskList('my-tasks',sorted(active),undefined,false);
@@ -174,7 +183,7 @@ const AUTH_REDIRECT_URL = new URL('/team/', window.location.origin).href;
     if (member.is_admin) taskList('admin-tasks',sorted(tasks)); else $('admin-tasks').replaceChildren();
     const eligible=sorted(mine.filter(t=>['not_started','in_progress'].includes(t.status)));
     fillSelect(submissionForm.elements.task_id,eligible,'Choose an assignment','id',t=>t.title);
-    const unavailable=!v2 ? documentsError||migrationNotice : !eligible.length ? 'No assignments are ready to turn in. Submitted work stays in Documents while it awaits review.' : '';
+    const unavailable=!v2 ? documentsError||migrationNotice : !eligible.length ? 'No assignments to submit. Find submitted work in Documents.' : '';
     message(unavailable,'submission-unavailable');
     $('submission-fields').disabled=busy||!v2||!eligible.length; $('submit-work').disabled=busy||!v2||!eligible.length;
     setSubmissionMethod();
@@ -294,10 +303,13 @@ const AUTH_REDIRECT_URL = new URL('/team/', window.location.origin).href;
   }
   function renderDocuments() {
     const list=$('documents-list'); list.replaceChildren();
-    if (documentsError) { list.append(node('p',documentsError,'notice')); return; }
-    if (!submissions.length) { list.append(node('p','No submissions yet. Turn in work to share it with the team.','empty')); return; }
+    $('document-filter-label').textContent=documentTaskId?'Assignment: '+(tasks.find(t=>t.id===documentTaskId)?.title||'Unavailable assignment'):'All assignments';
+    $('clear-document-filter').hidden=!documentTaskId;
+    if (documentsError) { list.append(node('p',documentsError,'notice'),button('Retry Documents',retryDocuments)); return; }
+    const visible=submissions.filter(s=>!documentTaskId||s.task_id===documentTaskId);
+    if (!visible.length) { list.append(node('p',documentTaskId?'No submissions for this assignment.':'No submissions yet.','empty')); return; }
     const latest=new Map();
-    const ordered=[...submissions].sort((a,b)=>b.submitted_at.localeCompare(a.submitted_at));
+    const ordered=[...visible].sort((a,b)=>b.submitted_at.localeCompare(a.submitted_at));
     ordered.forEach(s=>{if(!latest.has(s.task_id))latest.set(s.task_id,s.id);});
     ordered.forEach(s=>{
       const task=tasks.find(t=>t.id===s.task_id); const card=node('article','','task-card');
@@ -309,16 +321,22 @@ const AUTH_REDIRECT_URL = new URL('/team/', window.location.origin).href;
         else card.append(node('p','This submission has an invalid document link.','muted'));
       } else card.append(button('Download '+(s.file_name||'file'),event=>downloadFile(s,event.currentTarget)));
       if(s.notes)card.append(node('p',s.notes,'document-notes'));
-      if(member.is_admin&&task?.status==='submitted'&&latest.get(task.id)===s.id){const actions=node('div','','actions');actions.append(button('Mark Done',()=>changeStatus(task,'done')),button('Return for Changes',()=>changeStatus(task,'in_progress')));card.append(actions);}
+      if(member.is_admin&&task?.status==='submitted'&&latest.get(task.id)===s.id){const actions=node('div','','actions');actions.append(button('Mark Completed',()=>changeStatus(task,'done')),button('Return for Changes',()=>changeStatus(task,'in_progress')));card.append(actions);}
       list.append(card);
     });
+  }
+  async function retryDocuments() {
+    if(busy||!member)return;const ticket=generation;
+    try {const data=await readAll('submissions','id,task_id,submitted_by_id,submission_type,drive_url,file_path,file_name,notes,submitted_at');if(ticket!==generation)return;submissions=data;documentsError='';}
+    catch {if(ticket!==generation)return;documentsError=friendlyError;}
+    renderDocuments();
   }
   async function downloadFile(submission, control) {
     const ticket=generation; control.disabled=true;
     try {
       const {data,error}=await client.storage.from(BUCKET).createSignedUrl(submission.file_path,60,{download:submission.file_name||true});
       if(ticket!==generation)return; if(error)throw error;
-      const url=new URL(data.signedUrl); if(url.origin!==new URL(SUPABASE_URL).origin||!url.pathname.startsWith('/storage/v1/'))throw new Error('Unable to create a trusted download link.');
+      const url=new URL(data.signedUrl); if(url.origin!==new URL(SUPABASE_URL).origin||!url.pathname.startsWith('/storage/v1/'))throw portalError('Unable to create a trusted download link.');
       const link=node('a','Download file (link valid for 60 seconds)','document-link');link.href=url.href;link.target='_blank';link.rel='noopener noreferrer';control.replaceWith(link);
       setTimeout(()=>{if(link.isConnected)link.replaceWith(button('Download '+(submission.file_name||'file'),e=>downloadFile(submission,e.currentTarget)));},60000);
     } catch(error){if(ticket===generation)message(errorText(error));}finally{control.disabled=false;}
@@ -352,15 +370,25 @@ const AUTH_REDIRECT_URL = new URL('/team/', window.location.origin).href;
     try {
       const authorized=await authorize();if(ticket!==generation)return;
       if(!authorized){await signOut(denied);return;}member=authorized;
-      await action(ticket);if(ticket!==generation)return;
-      if(dialog.open)dialog.close();await loadWorkspace();if(member)$('activity').textContent=success;
-    }catch(error){if(ticket===generation)message(errorText(error),errorId);}finally{setBusy(false);}
+      const outcome=await action(ticket);if(ticket!==generation)return;
+      if(dialog.open)dialog.close();await loadWorkspace();if(member)$('activity').textContent=outcome?.message||success;
+    }catch(error){
+      if(ticket===generation){
+        if(error.code==='TASK_CONFLICT'){
+          if(dialog.open)dialog.close();await loadWorkspace();
+          if(member)message('This assignment changed or is no longer available. The list has been refreshed. Open it again to review.');
+        }else message(errorText(error),errorId);
+      }
+    }finally{setBusy(false);}
   }
-  async function changed(query) {const {data,error}=await query.select('id');if(error)throw error;if(data?.length!==1)throw new Error('No assignment changed. It may have been updated, removed, or become unavailable. Refresh and try again.');}
+  async function changed(query, conflict=false) {const {data,error}=await query.select('id');if(error)throw error;if(data?.length!==1)throw portalError('No assignment changed. Refresh and try again.',conflict?'TASK_CONFLICT':undefined);}
+  function atVersion(query, task) {
+    return task.updated_at == null ? query.is('updated_at',null) : query.eq('updated_at',task.updated_at);
+  }
   async function changeStatus(task,status) {
     if(!v2)return;
     await perform(async()=>{
-      if(!member.is_admin && (task.assignee_id!==member.id || !(task.status==='not_started'&&status==='in_progress' || task.status==='in_progress'&&status==='done'&&!task.requires_submission)))throw new Error('This status change is not allowed.');
+      if(!member.is_admin && (task.assignee_id!==member.id || !(task.status==='not_started'&&status==='in_progress' || task.status==='in_progress'&&status==='done'&&!task.requires_submission)))throw portalError('This status change is not allowed.');
       await changed(client.from('tasks').update({status}).eq('id',task.id).eq('status',task.status));
     },'notice',status==='in_progress'&&task.status==='submitted'?'Work returned for changes. Previous submissions are preserved.':'Assignment updated.');
   }
@@ -377,15 +405,15 @@ const AUTH_REDIRECT_URL = new URL('/team/', window.location.origin).href;
   async function saveAssignment(remove=false) {
     if(!member?.is_admin||busy)return;if(!remove&&!assignmentForm.reportValidity())return;
     const original=editing;const values=Object.fromEntries(new FormData(assignmentForm));
-    if(remove&&!window.confirm('Delete this assignment? Assignments with submissions cannot be deleted; mark them Done to preserve their history.'))return;
+    if(remove&&!window.confirm('Delete this assignment? Assignments with submissions cannot be deleted; mark them Completed to preserve their history.'))return;
     if(!remove&&!values.title.trim()){message('Enter an assignment title.','form-error');return;}
     await perform(async()=>{
-      if(!member.is_admin)throw new Error('Administrator access is required.');
-      if(remove){await changed(client.from('tasks').delete().eq('id',original.id));return;}
+      if(!member.is_admin)throw portalError('Administrator access is required.');
+      if(remove){await changed(atVersion(client.from('tasks').delete().eq('id',original.id),original),true);return;}
       const payload={title:values.title.trim(),description:values.description.trim()||null,assignee_id:values.assignee_id,due_date:values.due_date||null,status:values.status,priority:values.priority,category:values.category.trim()||null};
       if(v2)payload.requires_submission=values.requires_submission==='on';
       else {payload.completed_at=values.status==='done'?(original?.completed_at||new Date().toISOString()):null;if(original)payload.updated_at=new Date().toISOString();}
-      if(original)await changed(client.from('tasks').update(payload).eq('id',original.id));
+      if(original)await changed(atVersion(client.from('tasks').update(payload).eq('id',original.id),original),true);
       else{payload.created_by_id=member.id;await changed(client.from('tasks').insert(payload));}
     },'form-error',remove?'Assignment deleted.':'Assignment saved.');
   }
@@ -396,12 +424,12 @@ const AUTH_REDIRECT_URL = new URL('/team/', window.location.origin).href;
   }
   const pendingKey=()=> 'happys-team-pending-'+member.id;
   async function reconcilePending() {
-    const raw=sessionStorage.getItem(pendingKey());if(!raw)return false;
+    const raw=sessionStorage.getItem(pendingKey());if(!raw)return null;
     const pending=JSON.parse(raw);
-    const {data,error}=await client.from('submissions').select('id').eq('id',pending.id).maybeSingle();
-    if(error)throw new Error('The previous submission result is still unknown. Check your connection and try again; no duplicate submission was sent.');
-    if(!data&&pending.path){const cleanup=await client.storage.from(BUCKET).remove([pending.path]);if(cleanup.error)throw new Error('The previous upload needs cleanup before retrying. '+errorText(cleanup.error));}
-    sessionStorage.removeItem(pendingKey());return !!data;
+    const {data,error}=await client.from('submissions').select('id,task_id').eq('id',pending.id).maybeSingle();
+    if(error)throw portalError('The previous submission result is still unknown. Check your connection and try again; no duplicate submission was sent.');
+    if(!data&&pending.path){const cleanup=await client.storage.from(BUCKET).remove([pending.path]);if(cleanup.error)throw portalError('The previous upload needs cleanup before retrying. '+errorText(cleanup.error));}
+    sessionStorage.removeItem(pendingKey());return data?{id:data.id,taskId:data.task_id,taskTitle:pending.taskTitle}:null;
   }
   async function submitWork() {
     if(!v2||busy||!submissionForm.reportValidity())return;
@@ -412,21 +440,26 @@ const AUTH_REDIRECT_URL = new URL('/team/', window.location.origin).href;
     const extension=file?.name.split('.').pop().toLowerCase();
     if(isFile&&(!file||!FILE_TYPES[extension]||file.size===0||file.size>MAX_FILE_SIZE)){message('Choose a supported, nonempty file up to 20 MB.','submission-error');return;}
     await perform(async(ticket)=>{
-      if(await reconcilePending()){submissionForm.reset();return;}
+      const recovered=await reconcilePending();
       if(ticket!==generation)return;
-      if(task.assignee_id!==member.id)throw new Error('You can only submit work for your own assignment.');
+      if(recovered){
+        const title=tasks.find(t=>t.id===recovered.taskId)?.title||recovered.taskTitle||'your previous assignment';
+        if(recovered.taskId===task.id)submissionForm.reset();
+        return {message:`Previous submission recovered for “${title}”.`+(recovered.taskId!==task.id?' Your current draft is unchanged. Submit it when ready.':' No duplicate was sent.')};
+      }
+      if(task.assignee_id!==member.id)throw portalError('You can only submit work for your own assignment.');
       const id=crypto.randomUUID();const path=isFile?`${member.id}/${task.id}/${id}.${extension}`:null;
-      sessionStorage.setItem(pendingKey(),JSON.stringify({id,path}));
+      sessionStorage.setItem(pendingKey(),JSON.stringify({id,path,taskId:task.id,taskTitle:task.title}));
       if(isFile){const upload=await client.storage.from(BUCKET).upload(path,file,{contentType:FILE_TYPES[extension],upsert:false});if(upload.error)throw upload.error;}
       if(ticket!==generation)return;
       const payload={id,task_id:task.id,submitted_by_id:member.id,submission_type:values.submission_type,drive_url:driveUrl,file_path:path,file_name:isFile?file.name:null,notes:values.notes.trim()||null};
       // The database trigger moves the task to Submitted in this same transaction.
       const {data,error}=await client.from('submissions').insert(payload).select('id');
-      if(error)throw error;if(data?.length!==1)throw new Error('Submission was not confirmed. Refresh Documents before trying again.');
+      if(error)throw error;if(data?.length!==1)throw portalError('Submission was not confirmed. Refresh Documents before trying again.');
       sessionStorage.removeItem(pendingKey());submissionForm.reset();
     },'submission-error','Work submitted for review.');
   }
-  $('navigation').addEventListener('click',event=>{const link=event.target.closest('[data-view]');if(link){event.preventDefault();selectView(link.dataset.view);}});
+  $('navigation').addEventListener('click',event=>{const link=event.target.closest('[data-view]');if(link){event.preventDefault();if(link.dataset.view==='documents'){documentTaskId='';renderDocuments();}selectView(link.dataset.view);}});
   window.addEventListener('hashchange',()=>selectView(location.hash.slice(1),false));
   $('menu-open').addEventListener('click',openDrawer);$('menu-close').addEventListener('click',()=>closeDrawer());$('drawer-backdrop').addEventListener('click',()=>closeDrawer());
   mobile.addEventListener('change',()=>closeDrawer(false));
@@ -442,7 +475,8 @@ const AUTH_REDIRECT_URL = new URL('/team/', window.location.origin).href;
     if (!member?.is_admin) return;
     selectedMemberId = null; renderMembers(); $('members-heading').focus();
   });
-  $('review-documents').addEventListener('click',()=>selectView('documents'));
+  $('clear-document-filter').addEventListener('click',()=>{documentTaskId='';renderDocuments();});
+  $('review-documents').addEventListener('click',()=>{documentTaskId='';renderDocuments();selectView('documents');});
   $('close-dialog').addEventListener('click',()=>dialog.close());dialog.addEventListener('cancel',e=>{if(busy)e.preventDefault();});
   assignmentForm.addEventListener('submit',e=>{e.preventDefault();void saveAssignment();});$('delete').addEventListener('click',()=>void saveAssignment(true));$('add').addEventListener('click',()=>openForm());
   submissionForm.addEventListener('submit',e=>{e.preventDefault();void submitWork();});submissionForm.addEventListener('change',setSubmissionMethod);

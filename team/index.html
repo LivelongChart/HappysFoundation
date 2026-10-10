@@ -38,9 +38,11 @@
       <p id="notice" class="notice" role="alert" hidden></p><p id="activity" class="activity" role="status" aria-live="polite"></p>
       <section id="view-dashboard" class="view" aria-labelledby="welcome">
         <div class="welcome"><h3 id="welcome"></h3><p id="welcome-role" class="muted"></p></div>
-        <div id="stats" class="stats"></div>
-        <div class="section-heading"><h3>Due Soon</h3><span class="muted">Your next 7 days</span></div><div id="due-tasks" class="task-list"></div>
-        <div class="section-heading spaced"><h3>Recent Activity</h3><span class="muted">Submitted &amp; completed</span></div><div id="recent-tasks" class="task-list"></div>
+        <div class="section-heading"><h3>Needs attention</h3><a href="#my" >All my assignments</a></div><div id="due-tasks" class="task-list"></div>
+        <div class="section-heading spaced"><h3>Awaiting review</h3></div><div id="awaiting-tasks" class="task-list"></div>
+        <details class="completed"><summary id="dashboard-completed-summary">Completed</summary><div id="dashboard-completed-tasks" class="task-list"></div></details>
+        <div id="stats" class="stats dashboard-stats"></div>
+        <div class="section-heading spaced"><h3>Team activity</h3><span class="muted">Submitted &amp; completed</span></div><div id="recent-tasks" class="task-list"></div>
       </section>
       <section id="view-my" class="view" hidden aria-label="My Assignments"><div id="my-tasks" class="task-list"></div><details class="completed"><summary id="completed-summary">Completed assignments</summary><div id="completed-tasks" class="task-list"></div></details></section>
       <section id="view-team" class="view" hidden aria-label="Team Assignments">
@@ -53,34 +55,34 @@
         </form><p id="filter-count" class="muted" role="status"></p><div id="team-tasks" class="task-list"></div>
       </section>
       <section id="view-turn-in" class="view" hidden aria-label="Turn In Work">
-        <p class="intro">Share the work behind your assignment.</p><p class="muted">Use a Google Drive link for documents you’re still editing. Upload a final file when it’s ready for review.</p>
+        <p class="intro">Submit your work.</p><p class="muted">Use a Google Drive link for documents you’re still editing. Upload a final file when it’s ready for review.</p>
         <p id="submission-unavailable" class="notice" hidden></p>
         <form id="submission-form" class="panel form-panel">
           <p id="submission-error" class="notice" role="alert" hidden></p>
           <fieldset id="submission-fields">
             <label>Assignment<select name="task_id" required></select></label>
-            <fieldset class="method"><legend>How would you like to turn it in?</legend><label><input type="radio" name="submission_type" value="drive_link" checked> Google Drive link</label><label><input type="radio" name="submission_type" value="file"> Final file</label></fieldset>
+            <fieldset class="method"><legend>Submission type</legend><label><input type="radio" name="submission_type" value="drive_link" checked> Google Drive link</label><label><input type="radio" name="submission_type" value="file"> Final file</label></fieldset>
             <div id="drive-fields"><label>Google Drive link<input name="drive_url" type="url" placeholder="https://docs.google.com/…" aria-describedby="drive-help"></label><p id="drive-help" class="field-help">Use drive.google.com or docs.google.com. Share the document with the intended reviewers in Google Drive; the portal does not change sharing permissions.</p></div>
             <div id="file-fields" hidden><label>Final file<input name="file" type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.csv,.txt,.png,.jpg,.jpeg,.webp,.zip" aria-describedby="file-help"></label><p id="file-help" class="field-help">PDF, Office document, CSV, text, PNG/JPEG/WebP image, or ZIP. Up to 20 MB. Files are stored privately.</p></div>
             <label>Notes / comments <span class="muted">(optional)</span><textarea name="notes" rows="4" maxlength="10000"></textarea></label>
           </fieldset><button id="submit-work" class="primary" type="submit">Submit Work</button>
         </form>
       </section>
-      <section id="view-documents" class="view" hidden aria-label="Documents"><p class="muted">Submitted work visible to your account. Earlier versions remain available when work is returned for changes.</p><div id="documents-list" class="task-list"></div></section>
+      <section id="view-documents" class="view" hidden aria-label="Documents"><p class="muted">Submitted work. Earlier versions remain available when work is returned for changes.</p><div class="document-filter"><p id="document-filter-label" class="muted">All assignments</p><button id="clear-document-filter" type="button" hidden>Show all assignments</button></div><div id="documents-list" class="task-list"></div></section>
       <section id="view-admin" class="view" hidden aria-label="Admin">
         <nav class="admin-nav" aria-label="Admin sections">
           <button id="admin-assignments-tab" type="button" aria-pressed="true" aria-controls="admin-assignments-panel">Assignments &amp; review</button>
           <button id="admin-members-tab" type="button" aria-pressed="false" aria-controls="admin-members-panel">Team Members</button>
         </nav>
         <div id="admin-assignments-panel">
-        <div class="section-heading"><div><h3>Assignments &amp; review</h3><p class="muted">Manage the work and help the team move forward.</p></div><button id="add" class="primary" type="button">+ Add Assignment</button></div>
+        <div class="section-heading"><div><h3>Assignments &amp; review</h3><p class="muted">Create assignments and review submitted work.</p></div><button id="add" class="primary" type="button">+ Add Assignment</button></div>
         <div class="section-heading"><h3>Awaiting review</h3><button type="button" id="review-documents">Review submissions</button></div><div id="review-tasks" class="task-list"></div>
         <div class="section-heading spaced"><h3>All assignments</h3></div><div id="admin-tasks" class="task-list"></div>
         </div>
         <section id="admin-members-panel" hidden aria-labelledby="members-heading">
           <div id="members-overview">
-            <div class="section-heading"><div><h3 id="members-heading" tabindex="-1">Team Members</h3><p class="muted">Active members, their outstanding work, and recent completions.</p></div></div>
-            <p class="member-context">Members are listed alphabetically. Counts reflect assignments visible to your account. Overdue counts Not Started and In Progress work past its due date.</p>
+            <div class="section-heading"><div><h3 id="members-heading" tabindex="-1">Team Members</h3><p class="muted">Active members and their assignments.</p></div></div>
+            <p class="member-context">Listed alphabetically. Overdue excludes submitted and completed work.</p>
             <div id="member-list" class="task-list"></div>
           </div>
           <section id="member-detail" hidden aria-labelledby="member-detail-name">
@@ -103,7 +105,7 @@
       <fieldset id="form-fields">
         <label>Title<input name="title" required maxlength="300" autocomplete="off"></label><label>Description<textarea name="description" rows="3" maxlength="10000"></textarea></label>
         <div class="form-grid"><label>Assignee<select name="assignee_id" required></select></label><label>Due date<input name="due_date" type="date"></label>
-          <label>Status<select name="status"><option value="not_started">Not Started</option><option value="in_progress">In Progress</option><option value="submitted">Submitted</option><option value="done">Done</option></select></label>
+          <label>Status<select name="status"><option value="not_started">Not Started</option><option value="in_progress">In Progress</option><option value="submitted">Submitted</option><option value="done">Completed</option></select></label>
           <label>Priority<select name="priority"><option value="low">Low</option><option value="normal" selected>Normal</option><option value="high">High</option></select></label></div>
         <label>Category<input name="category" maxlength="120" autocomplete="off"></label><label class="check-label"><input name="requires_submission" type="checkbox"> Requires submission and admin review</label>
       </fieldset><div class="form-actions"><button id="delete" class="danger" type="button" hidden>Delete assignment</button><button id="save" class="primary" type="submit">Save assignment</button></div>

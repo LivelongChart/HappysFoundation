@@ -23,7 +23,7 @@ h3 { font-size: 19px; margin-bottom: 0; }
 h4 { font-size: 16px; margin-bottom: 8px; overflow-wrap: anywhere; }
 a { color: inherit; }
 button,input,select,textarea { font: inherit; }
-button { min-height: 42px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); padding: 9px 14px; cursor: pointer; border-radius: 3px; font-weight: 500; }
+button { min-height: 44px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); padding: 9px 14px; cursor: pointer; border-radius: 3px; font-weight: 500; }
 button:hover { background: var(--silver); }
 button.primary { background: var(--ink); border-color: var(--ink); color: white; }
 button.primary:hover { background: #514536; }
@@ -67,7 +67,7 @@ button.danger { color: #874735; }
 .task-card,.panel { padding: 20px; border: 1px solid var(--line); background: white; border-radius: 3px; min-width: 0; }
 .task-card.overdue { border-left: 3px solid var(--tabby); }
 .task-card-head { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; }
-.task-description { font: 17px/1.5 var(--body); white-space: pre-wrap; overflow-wrap: anywhere; color: #58544f; margin: 4px 0 16px; }
+.task-description { font: 14px/1.55 var(--ui); white-space: pre-wrap; overflow-wrap: anywhere; color: #58544f; margin: 4px 0 16px; }
 .task-meta,.actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .task-meta { color: var(--muted); font-size: 12px; margin-bottom: 12px; }
 .tag { padding: 3px 8px; border-radius: 3px; background: var(--silver); overflow-wrap: anywhere; }
@@ -75,7 +75,7 @@ button.danger { color: #874735; }
 .status-done { color: #4e5e48; background: #eaf0e6; }
 .task-bottom { display: flex; justify-content: space-between; gap: 14px; align-items: center; flex-wrap: wrap; }
 .task-bottom p { margin: 0; color: var(--muted); font-size: 12px; }
-.task-bottom button { min-height: 36px; padding: 6px 12px; }
+.task-bottom button { min-height: 44px; padding: 6px 12px; }
 .due-overdue { color: var(--tabby); font-weight: 600; }
 .assignee { color: var(--muted); font-size: 12px; margin-bottom: 10px; }
 .completed { margin-top: 26px; color: var(--muted); }
@@ -89,7 +89,7 @@ button.danger { color: #874735; }
 .form-panel { max-width: 720px; margin-top: 24px; }
 fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
 label { display: block; font-weight: 500; font-size: 12px; margin-bottom: 16px; }
-input,select,textarea { display: block; width: 100%; margin-top: 6px; padding: 10px; border: 1px solid #b8b5ae; border-radius: 2px; background: white; color: var(--ink); min-height: 42px; min-width: 0; }
+input,select,textarea { display: block; width: 100%; margin-top: 6px; padding: 10px; border: 1px solid #b8b5ae; border-radius: 2px; background: white; color: var(--ink); min-height: 44px; min-width: 0; }
 textarea { resize: vertical; }
 input[type="file"] { padding: 8px; overflow: hidden; }
 input[type="checkbox"],input[type="radio"] { display: inline-block; width: 18px; min-height: 18px; margin: 0; vertical-align: middle; accent-color: var(--tabby); }
@@ -140,7 +140,7 @@ dialog::backdrop { background: rgba(40,38,34,.4); }
 .member-card { padding: 18px 20px; border: 1px solid var(--line); border-radius: 3px; background: white; min-width: 0; }
 .member-card-heading h4 { margin-bottom: 0; }
 .member-card-heading .muted { margin-top: 0; font-size: 12px; }
-.member-name-button { border: 0; padding: 4px 0; min-height: 38px; font-size: 16px; text-align: left; font-weight: 600; color: #715536; overflow-wrap: anywhere; }
+.member-name-button { border: 0; padding: 4px 0; min-height: 44px; font-size: 16px; text-align: left; font-weight: 600; color: #715536; overflow-wrap: anywhere; }
 .member-name-button:hover { text-decoration: underline; background: transparent; }
 .member-counts { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 10px 18px; margin: 15px 0; padding: 13px 0; border-block: 1px solid var(--line); }
 .member-counts dt { color: var(--muted); font-size: 11px; }
@@ -157,4 +157,27 @@ dialog::backdrop { background: rgba(40,38,34,.4); }
   .member-card { padding: 16px; }
   .member-counts { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
   .recent-completed li { flex-direction: column; margin-bottom: 10px; }
+}
+
+/* Compact task-first workspace, using the existing silver and golden-brown palette. */
+.welcome { margin: 0 0 20px; }
+.welcome h3 { font-size: 20px; }
+.page-header { padding-bottom: 18px; }
+.task-card { padding: 16px 18px; }
+.task-description { margin-bottom: 12px; }
+.task-meta { margin-bottom: 8px; }
+.dashboard-stats { margin: 28px 0 0; }
+.stat { padding: 12px 16px; }
+.stat strong { font-size: 23px; margin-bottom: 4px; }
+.document-filter { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 16px 0; flex-wrap: wrap; }
+.section-heading a { display: inline-flex; align-items: center; min-height: 44px; font-size: 13px; color: var(--tabby); }
+#navigation a { min-height: 44px; }
+@media (max-width: 760px) {
+  #main { padding-top: 16px; }
+  .activity:empty { min-height: 0; margin: 12px 0; }
+  .welcome { margin-bottom: 16px; }
+  .welcome .muted { display: none; }
+  .task-card { padding: 14px; }
+  .task-bottom { gap: 8px; }
+  .spaced { margin-top: 24px; }
 }

@@ -1,0 +1,7 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><title>Offline portal fixture</title><body><p>Loading simulated workspace…</p><script>
+// Loads the real portal with a LOCAL fake SDK. This page never contacts Supabase.
+fetch('../index.html').then(r=>r.text()).then(html=>{
+  html=html.replace('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js','/team/tests/mock.js');
+  document.open();document.write(html);document.close();
+});
+</script></body></html>

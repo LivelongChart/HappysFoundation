@@ -1,0 +1,23 @@
+# Keep local/private files out of uploads, including deployments from a checkout.
+.DS_Store
+**/.DS_Store
+Recovery/
+Documents/
+GPT/
+Codex/
+HappysFoundation-main/
+htmls/
+.env
+.env.*
+**/.env
+**/.env.*
+node_modules/
+**/node_modules/
+.git/
+.codex/
+.agents/
+# Source-controlled development material is not browser runtime.
+team/tests/
+team/*.sql
+team/*.md
+# Do not exclude Images/, assets/, or any public HTML/CSS/JS.
