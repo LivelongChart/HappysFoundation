@@ -10,7 +10,7 @@
   ],
   "headers": [
     {
-      "source": "/team/:path*",
+      "source": "/team(/.*)?",
       "headers": [
         {
           "key": "Content-Security-Policy",
