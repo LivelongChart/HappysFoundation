@@ -6,12 +6,13 @@ Updated November 4, 2026. Update this file before every computer handoff.
 
 - Repository: LivelongChart/HappysFoundation; remote URL unchanged.
 - Recovered main: 99a5942b1b910c0dd05d3766eee20a77eee04114, October 28, 2026.
-- Recovered history: 23 commits. A fresh GitHub branch-list check on November 4
-  returned only main at the recovered SHA; work-in-progress exists locally only.
-- Windows primary folder: C:\Users\aryas\Documents\Codex\Projects\HappysFoundation.
+- Shared branch: local work-in-progress tracks origin/work-in-progress at a669222,
+  with the verified Mac integration commit d805343 applied locally on top.
+- Windows primary checkout is the owner's established Codex project folder;
+  its machine-specific absolute path is intentionally omitted from shared docs.
 - Windows local branch: work-in-progress, created from recovered main.
-- Preparation snapshot before the first documentation commit: this branch and
-  these documents are not yet on GitHub or the Mac. No commit or push has been made.
+- No integrated Mac commit or status update has been pushed. Production remains
+  unchanged and no deployment or connected-service modification was attempted.
 - Repository-local Git identity is configured with the owner's approval:
   Arya Shah <180571270+LivelongChart@users.noreply.github.com>. The supplied
   noreply address matches the linked GitHub account ID and login. No global
@@ -25,8 +26,11 @@ Updated November 4, 2026. Update this file before every computer handoff.
   not prove authenticated write permission. No push or write-permission test ran.
 - Original recovery checkout remains intact in the dated migration workspace.
   Use the primary folder above for future Windows editing; avoid parallel copies.
-- Mac path, working tree, branches, stashes and original Codex conversation have
-  not been accessed or changed. Their latest state is unknown.
+- The original Mac work is preserved on local branch mac-work-backup at cb647c4.
+  A complete verified backup, including .git, hidden files and untracked files,
+  is stored outside the active checkout in the dated sibling folder
+  HappysFoundation-mac-backup-2026-11-04. The original Codex conversation remains
+  intact. Eight raw source images remain local and untracked by design.
 
 ## Confirmed architecture and verification
 
@@ -36,12 +40,13 @@ security headers are defined in vercel.json. Supabase Google PKCE, team member
 authorization, assignments and private submissions are implemented in portal
 source; live operation is not certified.
 
-Both application JavaScript files passed syntax checks. Static audit of the 29
-public pages and portal found 224 literal local HTML/CSS references with no
-missing files. This does not verify runtime or dynamic links. Local preview
-process started, but automated loopback requests timed out or were denied.
-Browser verification stopped because the tool could not determine Chrome's URL
-reliably. Visual, navigation and responsive tests remain incomplete.
+Both application JavaScript files passed syntax checks. A November 4 static audit
+of 32 HTML files found no missing local href/src targets. Headless browser checks
+covered 14 representative public and portal routes at 1280, 853, 427 and 375 px:
+all 56 route/viewport combinations loaded without missing images, horizontal
+overflow or browser exceptions. The isolated Team Portal fixture passed all 11
+assertions at both 1180 and 390 px using mocked data only. These checks did not
+connect to Supabase or alter production data.
 
 Public forms, newsletter signup, shop and public account flows include deliberate
 unfinished behavior. Do not describe them as connected or repair them during
@@ -79,10 +84,12 @@ coordination nonprofit, separate commercial activities, and preservation of the
 Wix-derived appearance. These preferences are authoritative design constraints,
 but described features are not proof of implementation in the recovered code.
 
-Unverified proposals include an ivory reading panel for homepage progress content,
-two Found an Animal photographs and responsive layout refinements. Do not apply
-them during migration. The handoff may describe newer Mac-only work: compare
-that checkout with GitHub before concluding it is recovered or missing.
+The reviewed Mac refinements are now preserved in local integration commit
+d805343. They clarify preview-only public form behavior, improve safety and
+emergency routing, preserve the public contact email, add the licensed outdoor-cat
+asset and responsive Found an Animal refinements, and record its source. The
+eight excluded raw source images remain outside Git because some are unoptimized,
+have unresolved licensing, or contain metadata that should not be published.
 
 ## Next actions
 
@@ -92,13 +99,12 @@ that checkout with GitHub before concluding it is recovered or missing.
 2. Production/Preview tracking and Ignored Build Step have been verified by the
    owner; API team access and production domain/deployment identity are verified.
    Recheck settings if they change before a future release.
-3. Resolve local browser connectivity, then test public pages, navigation and
-   portal fixtures. Do not change appearance to fix environment problems.
-4. Obtain explicit approval for a documentation commit/push to work-in-progress,
-   including any automatic preview that push may trigger.
-5. On the Mac, use the original conversation to inspect and preserve local-only
-   work before checking out/pulling the shared branch and documentation.
-6. Investigate inactive Supabase with the owner; reactivation and live write tests
+3. Review the two local integration commits and obtain explicit approval before
+   pushing work-in-progress. A push may trigger a Vercel preview; it must not be
+   treated as approval to merge main or deploy production.
+4. Public forms, account creation, newsletter signup and shop behavior remain
+   intentionally unconnected or incomplete and require separate implementation.
+5. Investigate inactive Supabase with the owner; reactivation and live write tests
    require separate approval. Do not replace or reset the project.
 
 ## Handoff template for future sessions
