@@ -1,18 +1,21 @@
 # Shared project status
 
-Updated November 4, 2026. Update this file before every computer handoff.
+Updated November 9, 2026. Update this file before every computer handoff.
 
 ## Current source and locations
 
 - Repository: LivelongChart/HappysFoundation; remote URL unchanged.
 - Recovered main: 99a5942b1b910c0dd05d3766eee20a77eee04114, October 28, 2026.
-- Shared branch: local work-in-progress tracks origin/work-in-progress at a669222,
-  with the verified Mac integration commit d805343 applied locally on top.
+- Shared branch: local work-in-progress tracks origin/work-in-progress at 3a8ebad.
+  The current approved release candidate adds the locally reviewed homepage and
+  Found an Animal refinements described below; it has not yet been committed at
+  the time of this checkpoint.
 - Windows primary checkout is the owner's established Codex project folder;
   its machine-specific absolute path is intentionally omitted from shared docs.
 - Windows local branch: work-in-progress, created from recovered main.
-- No integrated Mac commit or status update has been pushed. Production remains
-  unchanged and no deployment or connected-service modification was attempted.
+- The Mac integration commits d805343 and 3a8ebad are present on the shared
+  branch. Production remains on main at 99a5942 until the approved release is
+  merged through the normal GitHub/Vercel workflow.
 - Repository-local Git identity is configured with the owner's approval:
   Arya Shah <180571270+LivelongChart@users.noreply.github.com>. The supplied
   noreply address matches the linked GitHub account ID and login. No global
@@ -47,6 +50,24 @@ all 56 route/viewport combinations loaded without missing images, horizontal
 overflow or browser exceptions. The isolated Team Portal fixture passed all 11
 assertions at both 1180 and 390 px using mocked data only. These checks did not
 connect to Supabase or alter production data.
+
+The November 9 release candidate preserves the approved Atmospheric Field
+homepage hero, editorial homepage navigation/features, responsive homepage
+layout, and the expanded I Found an Animal safety/resource guidance. Cat, Dog,
+and Wildlife choices control one shared expandable guidance region before the
+emergency panel; it is collapsed initially, supports keyboard activation, and
+never displays more than one species panel at a time. Six optimized, referenced
+public image assets and their source records are included. Eight raw source
+images in Images/ remain intentionally local and untracked.
+
+Pre-release checks on November 9 covered all 29 public HTML files for missing
+local references; 16 representative public/portal routes at 1280, 853, 427 and
+375 px for browser exceptions, missing images and overflow; the homepage at
+1920, 1600, 1440, 1280, 1024, 768, 430 and 390 px; the animal-guidance controls
+at 1440, 1024, 768, 430, 390 and 320 px; and the offline Team Portal fixture at
+1180 and 390 px. No material failures were found. The portal fixture passed all
+22 assertions at each width using simulated data only. Live Supabase writes,
+authentication and migrations were not exercised or changed.
 
 Public forms, newsletter signup, shop and public account flows include deliberate
 unfinished behavior. Do not describe them as connected or repair them during
