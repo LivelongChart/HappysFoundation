@@ -114,6 +114,130 @@ have unresolved licensing, or contain metadata that should not be published.
 
 ## Next actions
 
+### Local homepage showcase checkpoint — November 11, 2026
+
+- Local, uncommitted homepage work replaces the former Dual-Impact, animal-welfare
+  challenges, and coordination sections with four alternating editorial rows for
+  services, partnerships, participation, and Foundation support. The approved
+  hero, three pathway cards, checkerboard fade, closing statement, and interior
+  pages remain unchanged.
+- The showcase reuses four tracked images already recorded in `IMAGE-SOURCES.md`
+  and links to `/customers`, `/partner`, `/services`, and `/donate`. The donation
+  destination continues to state that secure online giving is not active.
+- The Help the Animals row now uses the owner-provided Pexels photograph of a
+  puppy and cat outdoors, saved as an optimized local asset with its source noted.
+- The existing homepage IntersectionObserver handles each row independently;
+  reduced-motion behavior remains visible and motion-free. No new dependency or
+  observer was added.
+- Local Chrome checks at 1280, 853, 427, and 375 px found four rows, correct
+  desktop alternation and mobile stacking, no missing images, horizontal
+  overflow, or page exceptions. All four destination routes returned HTTP 200.
+- Remaining step: owner visual review. Do not commit, push, merge, or deploy this
+  checkpoint without explicit approval.
+
+### Animal Resources navigation image checkpoint (2026-11-11)
+
+- Replaced only the Animal Resources mega-menu photograph with the owner-supplied
+  black-cat-and-tabby image and stored an optimized 1350 x 1800 JPEG derivative.
+- Updated the descriptive alternative text and adjusted the menu-specific focal
+  position so both cats remain visible in the existing rectangular crop.
+- The compact mobile navigation intentionally remains text-only, preserving its
+  established responsive behavior and layout.
+
+### Partner With Us image checkpoint (2026-11-11)
+
+- Replaced only the homepage Partner With Us photograph with the owner-supplied
+  dog-and-person image and stored an optimized 1201 x 1800 JPEG derivative.
+- Preserved the existing organic frame, alternating layout, dimensions, and
+  fade-up animation; updated the alternative text and focal position so the
+  dog's face and paw-to-hand contact remain visible.
+
+### Join the Team homepage copy checkpoint (2026-11-11)
+
+- Updated only the Join the Team description and CTA so the section describes
+  developing paid local-service opportunities rather than nonprofit volunteering.
+- The CTA now links to `/apply`, whose current youth-provider path describes paid
+  work while clearly identifying its form as a non-submitting preview and its
+  adult/professional paths as future tracks.
+
+### Our Mission hero copy checkpoint (2026-11-11)
+
+- Updated only the Mission hero headline and supporting paragraph to pair the
+  Houston starting point with Happy's longer-term global vision.
+- The existing eyebrow, cat photograph, hero geometry, and remaining Mission
+  page content are unchanged.
+
+### Mission page editorial redesign checkpoint (2026-11-11)
+
+- Rebuilt the local Mission page as an evidence-led story: controlled-chaos
+  animal-photo collage, 2025 shelter statistics, four intended priorities,
+  Houston coordination boundaries, and research/action pathways.
+- The Reality section uses Shelter Animals Count's 2025 estimates of 5.8 million
+  U.S. dog/cat community intakes and 597,000 euthanasia outcomes, plus BARC's
+  reported 22,445 Houston intake total. Each figure links to its primary report
+  and includes geography, year, and a definition note.
+- The hero collage reuses five existing local, source-recorded animal images. A
+  Mission-scoped IntersectionObserver provides progressive fade-up motion while
+  leaving content visible without JavaScript and under reduced motion.
+- This work remains local and uncommitted pending owner visual review.
+- Refined the collage hero copy geometry after review: the text is now top-anchored
+  inside a wider protected reading area with a smaller maximum display size and
+  additional hero height, preventing low placement or clipping at intermediate
+  widths while leaving the collage photographs unchanged.
+- A subsequent owner-directed revision moves the headline into the open left
+  field, locks its desktop composition to two lines, and replaces all collage
+  photography with six newly supplied, locally optimized animal images. Source
+  provenance remains recorded as owner-supplied with creator confirmation pending.
+
+### Sitewide responsive-layout checkpoint (2026-11-12)
+
+- Refined the shared public-page frame after reviewing Harvard's responsive
+  behavior: large screens now use a fluid gutter and a 1520 px maximum content
+  width, while the header and page shells remain aligned to the same frame.
+- Moved the compact navigation transition to 900 px so tablet widths use the
+  established menu instead of compressing the full desktop navigation. Compact
+  gutters step down again at 620 px; existing page-specific breakpoints remain
+  in place for their individual compositions.
+- Removed a Mission-page overflow at 768 px by allowing the closing heading to
+  wrap at compact widths. No public-page copy, imagery, routes, or functionality
+  was changed as part of this responsive pass, and the Team Portal was untouched.
+- Automated Chrome checks covered all 29 public routes at 1920, 1440, 1280,
+  1024, 768, 500, 390, and 320 px (232 route/viewport combinations): all routes
+  returned HTTP 200 with no horizontal overflow or page exceptions. Separate
+  scrolled checks confirmed homepage lazy-loaded images at desktop and mobile.
+- Interaction checks passed for keyboard-operated desktop dropdown navigation,
+  the compact mobile menu, the Found an Animal guidance selector, and 320 px
+  contact-form control containment. This work remains local and uncommitted
+  pending owner visual review.
+- Owner-requested homepage follow-up: the four alternating showcase rows now
+  retain the previously approved compact 1120 px desktop frame, tighter row and
+  column gaps, and a 56 px display-heading ceiling. The shared sitewide frame
+  remains unchanged, as do the established tablet/mobile stacking rules.
+
+### Final pre-production audit checkpoint (2026-11-13)
+
+- Audited all 29 public HTML routes for metadata, internal links and anchors,
+  duplicate IDs, image alternative text, and referenced assets; no unresolved
+  static-audit errors remain.
+- Corrected the homepage Wildlife destination to the current Texas Parks and
+  Wildlife rehabilitator path and replaced four unavailable Wix-hosted research
+  downloads with public, repository-hosted PDF copies of the same articles.
+- Clarified Marketplace, customer-service, and youth-provider pages so planned
+  commercial services and non-submitting preview forms are not presented as
+  operational services or active hiring.
+- JavaScript syntax checks passed. Automated Chrome verification covered all 29
+  routes at 1920, 1440, 1280, 1024, 768, 500, 390, and 320 px with no horizontal
+  overflow, page exceptions, or non-lazy broken images. Scrolled homepage checks
+  confirmed every lazy-loaded image and fade-up reveal.
+- Browser interaction checks passed for keyboard desktop navigation, Escape
+  handling, compact mobile navigation, Cat/Dog/Wildlife guidance selection,
+  preview-form non-submission, reduced-motion visibility, JavaScript-disabled
+  Mission content, the Mission gradient and statistic alignment, and all four
+  local research PDF routes.
+- The existing Supabase project remains inactive. Public pages are unaffected,
+  but Team Portal authentication and database-dependent features must be treated
+  as unavailable until the owner separately approves project reactivation.
+
 1. Owner reviews these shared documents. Normal-terminal Git browser sign-in
    and repository read access are confirmed; restricted-session credential-store
    access remains unavailable. Do not push merely to test authentication.
